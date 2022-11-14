@@ -77,7 +77,7 @@ class search_twitter():
             dir = dirname + '/'+(start_day+ datetime.timedelta(days=day)).date().isoformat()+'/'
             while True:
                 url, params = construct_request(keyword, next_token=next_token, start_time=start_time, end_time=end_time)
-                data, next_token, res_header =self.send_request(url, params)
+                data, next_token, res_header = self.send_request(url, params)
                 if len(data) < 1:
                     break
                 self.savedata(data, dir)
@@ -85,7 +85,6 @@ class search_twitter():
                 if next_token == '':
                     break
                 self.check_rate_limit(res_header)
-                time.sleep(1)
                 if next_token == '' or next_token == 'invalid_query':
                     break
             if next_token == 'invalid_query':
@@ -139,7 +138,6 @@ class search_twitter():
             if next_token == '':
                 break
             self.check_rate_limit(res_header)
-            time.sleep(1)
             if next_token == '' or next_token == 'invalid_query':
                 break
 
@@ -170,7 +168,6 @@ class search_twitter():
             if next_token == '':
                 break
             self.check_rate_limit(res_header)
-            time.sleep(1)
             if next_token == '' or next_token == 'invalid_query':
                 break
 
@@ -220,7 +217,6 @@ class search_twitter():
                     break
                 else:
                     counter += 1
-                time.sleep(1)
                 if next_token == '' or next_token == 'invalid_query':
                     break
         elif not friends == 'follow':
@@ -242,7 +238,6 @@ class search_twitter():
                     break
                 if length > 0 and counter > length:
                     break
-                time.sleep(1)
                 if next_token == '' or next_token == 'invalid_query':
                     break
 
@@ -253,7 +248,7 @@ class search_twitter():
                         status_forcelist=[500, 502, 503, 504, 404])
 
         session.mount("https://", HTTPAdapter(max_retries=retries))
-
+        time.sleep(1)
         response = session.get(URL,
                             params=params,
                             headers=self.post_header,
@@ -272,12 +267,14 @@ class search_twitter():
             if 'data' in tweets:
                 response_data['data'] = tweets['data']
             if 'includes' in tweets:
-                if 'user' in tweets['includes']:
-                    response_data['user'] = tweets['includes']['users']
+                if 'users' in tweets['includes']:
+                    response_data['users'] = tweets['includes']['users']
                 if 'media' in tweets['includes']:
                     response_data['media'] = tweets['includes']['media']
+                if 'places' in tweets['includes']:
+                    response_data['places'] = tweets['includes']['places']
                 if 'tweets' in tweets['includes']:
-                    response_data['Conversation'] = tweets['includes']['tweets']
+                    response_data['conversation'] = tweets['includes']['tweets']
 
             return response_data, next_token, response.headers
 
@@ -298,8 +295,9 @@ class search_twitter():
             time.sleep(60)
 
 if __name__ == '__main__':
-    #start_time = datetime.datetime(2022, 7, 10, hour=0, minute = 0,second = 0)
-    search_twitter().full_search_tweet('遠賀川')
-    #search_twitter().user_timeline('ProfMatsuoka')
+    start_time = datetime.datetime(2022, 11, 2, hour=0, minute = 0,second = 0)
+    #search_twitter().full_search_tweet('retweets_of_tweet_id:1581987544777883648')
+    #search_twitter().full_search_tweet('混雑',start_day=start_time, end_day=1)
+    #search_twitter().full_search_tweet('point_radius:[138.46877332901622 35.02008284207412 2km]','清水', start_day=start_time)
     #search_twitter().retweetedby('1578172221310521344')
     #search_twitter().follow_follower('ProfMatsuoka',friends='follow')
